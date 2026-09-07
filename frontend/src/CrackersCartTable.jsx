@@ -80,29 +80,30 @@ const CrackersCartTable = ({
   };
 
   const calculateTotal = (price, quantity) => {
-    return (price * quantity).toFixed(2);
+    return ((price || 0) * (quantity || 0)).toFixed(2);
   };
 
   const getTotalItems = () => {
-    return Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
+    return Object.values(quantities || {}).reduce((sum, qty) => sum + (qty || 0), 0);
   };
 
   const calculateGrandTotal = () => {
-    return products
+    return (products || [])
       .reduce((total, item) => {
-        const quantity = quantities[item._id] || 0;
-        return total + item.actualPrice * quantity;
+        const quantity = (quantities && quantities[item._id]) || 0;
+        const price = item.discountedPrice || item.actualPrice || 0;
+        return total + price * quantity;
       }, 0)
       .toFixed(2);
   };
 
   const getDiscountedTotal = () => {
-    const total = parseFloat(calculateGrandTotal());
-    return (total * (1 - cartDiscount / 100)).toFixed(2);
+    const total = parseFloat(calculateGrandTotal()) || 0;
+    return (total * (1 - (cartDiscount || 0) / 100)).toFixed(2);
   };
 
   const getSelectedItems = () => {
-    return products.filter((item) => quantities[item._id] > 0);
+    return (products || []).filter((item) => quantities && quantities[item._id] > 0);
   };
 
   const handleGenerateBill = async (e) => {
